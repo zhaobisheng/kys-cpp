@@ -17,27 +17,30 @@ Engine::~Engine()
 
 BP_Texture* Engine::createYUVTexture(int w, int h)
 {
-    return SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_YV12, SDL_TEXTUREACCESS_STREAMING, w, h);
+    //return SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_YV12, SDL_TEXTUREACCESS_STREAMING, w, h);
+    return GPU_CreateImage(w, h, GPU_FORMAT_YCbCr422);
 }
 
 void Engine::updateYUVTexture(BP_Texture* t, uint8_t* data0, int size0, uint8_t* data1, int size1, uint8_t* data2, int size2)
 {
-    SDL_UpdateYUVTexture(testTexture(t), nullptr, data0, size0, data1, size1, data2, size2);
+    //SDL_UpdateYUVTexture(testTexture(t), nullptr, data0, size0, data1, size1, data2, size2);
 }
 
 BP_Texture* Engine::createARGBTexture(int w, int h)
 {
-    return SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, w, h);
+    //return SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, w, h);
+    return GPU_CreateImage(w,h, GPU_FORMAT_RGBA);
 }
 
 BP_Texture* Engine::createARGBRenderedTexture(int w, int h)
 {
-    return SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, w, h);
+    //return SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, w, h);
+    return GPU_CreateImage(w, h, GPU_FORMAT_RGBA);
 }
 
 void Engine::updateARGBTexture(BP_Texture* t, uint8_t* buffer, int pitch)
 {
-    SDL_UpdateTexture(testTexture(t), nullptr, buffer, pitch);
+    //SDL_UpdateTexture(testTexture(t), nullptr, buffer, pitch);
 }
 
 void Engine::renderCopy(BP_Texture* t, int x, int y, int w, int h, int inPresent)
@@ -47,31 +50,35 @@ void Engine::renderCopy(BP_Texture* t, int x, int y, int w, int h, int inPresent
         x += rect_.x;
         y += rect_.y;
     }
-    SDL_Rect r = { x, y, w, h };
-    SDL_RenderCopy(renderer_, t, nullptr, &r);
+    BP_Rect r = { x, y, w, h };
+    //SDL_RenderCopy(renderer_, t, nullptr, &r);
+    GPU_BlitRect(t, nullptr, renderer_, &r);
 }
 
 void Engine::renderCopy(BP_Texture* t /*= nullptr*/)
 {
-    SDL_RenderCopyEx(renderer_, testTexture(t), nullptr, &rect_, rotation_, nullptr, SDL_FLIP_NONE);
+    //SDL_RenderCopyEx(renderer_, testTexture(t), nullptr, &rect_, rotation_, nullptr, SDL_FLIP_NONE);
+    GPU_BlitRect(testTexture(t), nullptr, renderer_, &rect_);
 }
 
 void Engine::renderCopy(BP_Texture* t, BP_Rect* rect1, double angle)
 {
-    SDL_RenderCopyEx(renderer_, t, nullptr, rect1, angle, nullptr, SDL_FLIP_NONE);
+    //SDL_RenderCopyEx(renderer_, t, nullptr, rect1, angle, nullptr, SDL_FLIP_NONE);
+    GPU_BlitRect(t, nullptr, renderer_, rect1);
 }
 
 void Engine::renderCopy(BP_Texture* t, BP_Rect* rect0, BP_Rect* rect1, int inPresent /*= 0*/)
 {
-    SDL_RenderCopy(renderer_, t, rect0, rect1);
+    //SDL_RenderCopy(renderer_, t, rect0, rect1);
+    GPU_BlitRect(t, rect0, renderer_, rect1);
 }
 
 void Engine::destroy()
 {
     //SDL_DestroyTexture(tex_);
     destroyAssistTexture();
-    SDL_DestroyRenderer(renderer_);
-    SDL_DestroyWindow(window_);
+    //SDL_DestroyRenderer(renderer_);
+    //SDL_DestroyWindow(window_);
 #if defined(_WIN32) && defined(_TINYPOT)
     PotDestory(tinypot_);
 #endif
@@ -106,9 +113,9 @@ BP_Texture* Engine::createSquareTexture(int size)
             }*/
         }
     }
-    square_ = SDL_CreateTextureFromSurface(renderer_, square_s);
-    SDL_SetTextureBlendMode(square_, SDL_BLENDMODE_BLEND);
-    SDL_SetTextureAlphaMod(square_, 128);
+    square_ = GPU_CopyImageFromSurface(square_s);
+    //SDL_SetTextureBlendMode(square_, SDL_BLENDMODE_BLEND);
+    //SDL_SetTextureAlphaMod(square_, 128);
     SDL_FreeSurface(square_s);
     return square_;
 }
@@ -122,7 +129,7 @@ BP_Texture* Engine::createTextTexture(const std::string& fontname, const std::st
     }
     //SDL_Color c = { 255, 255, 255, 128 };
     auto text_s = TTF_RenderUTF8_Blended(font, text.c_str(), c);
-    auto text_t = SDL_CreateTextureFromSurface(renderer_, text_s);
+    auto text_t = GPU_CopyImageFromSurface(text_s);
     SDL_FreeSurface(text_s);
     TTF_CloseFont(font);
     return text_t;
@@ -140,9 +147,11 @@ void Engine::drawText(const std::string& fontname, std::string& text, int size, 
     {
         return;
     }
-    SDL_SetTextureAlphaMod(text_t, alpha);
+    GPU_SetRGBA(text_t,255,255,255, alpha);
     SDL_Rect rect;
-    SDL_QueryTexture(text_t, nullptr, nullptr, &rect.w, &rect.h);
+    //SDL_QueryTexture(text_t, nullptr, nullptr, &rect.w, &rect.h);
+    rect.w = text_t->w;
+    rect.h = text_t->h;
     rect.y = y;
     switch (align)
     {
@@ -156,8 +165,8 @@ void Engine::drawText(const std::string& fontname, std::string& text, int size, 
         rect.x = x - rect.w / 2;
         break;
     }
-    SDL_RenderCopy(renderer_, text_t, nullptr, &rect);
-    SDL_DestroyTexture(text_t);
+    //SDL_RenderCopy(renderer_, text_t, nullptr, &rect);
+    GPU_FreeImage(text_t);
 }
 
 int Engine::init(void* handle)
@@ -167,12 +176,13 @@ int Engine::init(void* handle)
         return -1;
     }
 
-    window_ = SDL_CreateWindow(title_.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        start_w_, start_h_, SDL_WINDOW_RESIZABLE);
+    window_ = GPU_Init(start_w_, start_h_, SDL_WINDOW_RESIZABLE);
 
-    SDL_ShowWindow(window_);
-    SDL_RaiseWindow(window_);
-    renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE /*| SDL_RENDERER_PRESENTVSYNC*/);
+    renderer_ = window_;
+
+    //SDL_ShowWindow(window_);
+    //SDL_RaiseWindow(window_);
+    //renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE /*| SDL_RENDERER_PRESENTVSYNC*/);
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
     SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
@@ -184,7 +194,7 @@ int Engine::init(void* handle)
 
     rect_ = { 0, 0, start_w_, start_h_ };
     logo_ = loadImage("logo.png");
-    showLogo();
+    //showLogo();
     renderPresent();
     TTF_Init();
 
@@ -217,21 +227,17 @@ int Engine::init(void* handle)
 
 int Engine::getWindowWidth()
 {
-    int w;
-    SDL_GetWindowSize(window_, &w, nullptr);
-    return w;
+    return window_->w;;
 }
 
 int Engine::getWindowHeight()
 {
-    int h;
-    SDL_GetWindowSize(window_, nullptr, &h);
-    return h;
+    return window_->h;
 }
 
 bool Engine::isFullScreen()
 {
-    Uint32 state = SDL_GetWindowFlags(window_);
+    Uint32 state = 0;// window_->;
     full_screen_ = (state & SDL_WINDOW_FULLSCREEN) || (state & SDL_WINDOW_FULLSCREEN_DESKTOP);
     return full_screen_;
 }
@@ -239,20 +245,24 @@ bool Engine::isFullScreen()
 void Engine::toggleFullscreen()
 {
     full_screen_ = !full_screen_;
-    if (full_screen_)
-    {
-        SDL_SetWindowFullscreen(window_, SDL_WINDOW_FULLSCREEN_DESKTOP);
-    }
-    else
-    {
-        SDL_SetWindowFullscreen(window_, 0);
-    }
-    SDL_RenderClear(renderer_);
+    //if (full_screen_)
+    //{
+    //    SDL_SetWindowFullscreen(window_, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    //}
+    //else
+    //{
+    //    SDL_SetWindowFullscreen(window_, 0);
+    //}
+    //SDL_RenderClear(renderer_);
+    GPU_Clear(window_);
 }
 
 BP_Texture* Engine::loadImage(const std::string& filename)
 {
-    return IMG_LoadTexture(renderer_, filename.c_str());
+    SDL_Surface* sur = IMG_Load(filename.c_str());
+    auto tex = GPU_CopyImageFromSurface(sur);
+    SDL_FreeSurface(sur);
+    return tex;
 }
 
 bool Engine::setKeepRatio(bool b)
@@ -278,7 +288,10 @@ void Engine::setPresentPosition()
     int w_dst = 0, h_dst = 0;
     int w_src = 0, h_src = 0;
     getWindowSize(w_dst, h_dst);
-    SDL_QueryTexture(tex_, nullptr, nullptr, &w_src, &h_src);
+    //SDL_QueryTexture(tex_, nullptr, nullptr, &w_src, &h_src);
+    w_src = tex_->w;
+    h_src = tex_->h;
+
     w_src *= ratio_x_;
     h_src *= ratio_y_;
     if (keep_ratio_)
@@ -328,10 +341,16 @@ BP_Texture* Engine::transBitmapToTexture(const uint8_t* src, uint32_t color, int
             p[4 * (y * w + x)] = src[y * stride + x];
         }
     }
-    auto t = SDL_CreateTextureFromSurface(renderer_, s);
+    auto t = GPU_CopyImageFromSurface(s);
     SDL_FreeSurface(s);
-    SDL_SetTextureBlendMode(t, SDL_BLENDMODE_BLEND);
-    SDL_SetTextureAlphaMod(t, 192);
+
+    GPU_SetBlending(t, true);
+
+    //SDL_SetTextureBlendMode(t, SDL_BLENDMODE_BLEND);
+    //SDL_SetTextureAlphaMod(t, 192);
+
+    GPU_SetRGBA(t, 255,255,255,192);
+
     return t;
 }
 
@@ -381,12 +400,12 @@ void Engine::setWindowSize(int w, int h)
     }
     win_w_ = std::min(max_x_ - min_x_, w);
     win_h_ = std::min(max_y_ - min_y_, h);
-    SDL_SetWindowSize(window_, win_w_, win_h_);
+    //SDL_SetWindowSize(window_, win_w_, win_h_);
     setPresentPosition();
 
-    SDL_ShowWindow(window_);
-    SDL_RaiseWindow(window_);
-    SDL_GetWindowSize(window_, &win_w_, &win_h_);
+    //SDL_ShowWindow(window_);
+    //SDL_RaiseWindow(window_);
+    //SDL_GetWindowSize(window_, &win_w_, &win_h_);
     //resetWindowsPosition();
     //renderPresent();
 }
@@ -394,8 +413,8 @@ void Engine::setWindowSize(int w, int h)
 void Engine::resetWindowsPosition()
 {
     int x, y, w, h, x0, y0;
-    SDL_GetWindowSize(window_, &w, &h);
-    SDL_GetWindowPosition(window_, &x0, &y0);
+    //SDL_GetWindowSize(window_, &w, &h);
+    //SDL_GetWindowPosition(window_, &x0, &y0);
     x = std::max(min_x_, x0);
     y = std::max(min_y_, y0);
     if (x + w > max_x_)
@@ -408,15 +427,17 @@ void Engine::resetWindowsPosition()
     }
     if (x != x0 || y != y0)
     {
-        SDL_SetWindowPosition(window_, x, y);
+        //SDL_SetWindowPosition(window_, x, y);
     }
 }
 
 void Engine::setColor(BP_Texture* tex, BP_Color c, uint8_t alpha)
 {
-    SDL_SetTextureColorMod(tex, c.r, c.g, c.b);
-    SDL_SetTextureAlphaMod(tex, alpha);
-    SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
+    //SDL_SetTextureColorMod(tex, c.r, c.g, c.b);
+    //SDL_SetTextureAlphaMod(tex, alpha);
+    //SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
+    GPU_SetBlending(tex, true);
+    GPU_SetRGBA(tex, c.r, c.g, c.b, alpha);
 }
 
 void Engine::fillColor(BP_Color color, int x, int y, int w, int h)
@@ -426,15 +447,16 @@ void Engine::fillColor(BP_Color color, int x, int y, int w, int h)
         getWindowSize(w, h);
     }
     BP_Rect r{ x, y, w, h };
-    SDL_SetRenderDrawColor(renderer_, color.r, color.g, color.b, color.a);
-    SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
-    SDL_RenderFillRect(renderer_, &r);
+    //SDL_SetRenderDrawColor(renderer_, color.r, color.g, color.b, color.a);
+    //SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
+    //SDL_RenderFillRect(renderer_, &r);
+    GPU_RectangleFilled(renderer_, x, y, x + w, y + h, color);
 }
 
 void Engine::renderAssistTextureToWindow()
 {
-    SDL_SetRenderTarget(renderer_, nullptr);
-    SDL_RenderCopy(renderer_, tex2_, nullptr, nullptr);
+    resetRenderTarget();
+    GPU_BlitRect(tex2_, nullptr, renderer_, nullptr);
 }
 
 void Engine::renderSquareTexture(BP_Rect* rect, BP_Color color, uint8_t alpha)
@@ -456,9 +478,9 @@ int Engine::saveScreen(const char* filename)
     SDL_Rect rect;
     rect.x = 0;
     rect.y = 0;
-    SDL_GetWindowSize(window_, &rect.w, &rect.h);
+    //SDL_GetWindowSize(window_, &rect.w, &rect.h);
     SDL_Surface* sur = SDL_CreateRGBSurface(0, rect.w, rect.h, 32, RMASK, GMASK, BMASK, AMASK);
-    SDL_RenderReadPixels(renderer_, &rect, SDL_PIXELFORMAT_ARGB8888, sur->pixels, rect.w * 4);
+    //SDL_RenderReadPixels(renderer_, &rect, SDL_PIXELFORMAT_ARGB8888, sur->pixels, rect.w * 4);
     SDL_SaveBMP(sur, filename);
     return 0;
 }
@@ -466,7 +488,7 @@ int Engine::saveScreen(const char* filename)
 void Engine::setWindowPosition(int x, int y)
 {
     int w, h;
-    SDL_GetWindowSize(window_, &w, &h);
+    //SDL_GetWindowSize(window_, &w, &h);
     if (x == BP_WINDOWPOS_CENTERED)
     {
         x = min_x_ + (max_x_ - min_x_ - w) / 2;
@@ -475,5 +497,5 @@ void Engine::setWindowPosition(int x, int y)
     {
         y = min_y_ + (max_y_ - min_y_ - h) / 2;
     }
-    SDL_SetWindowPosition(window_, x, y);
+    //SDL_SetWindowPosition(window_, x, y);
 }

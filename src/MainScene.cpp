@@ -8,7 +8,7 @@
 #include "UISave.h"
 #include "Util.h"
 #include <time.h>
-//#include "Timer.h"
+#include "Timer.h"
 
 MainScene::MainScene()
 {
@@ -46,8 +46,8 @@ MainScene::MainScene()
     }
     //getEntrance();
     weather_ = new ParticleWeather();
-    weather_->setRenderer(Engine::getInstance()->getRenderer());
-    weather_->setTexture(TextureManager::getInstance()->loadTexture("title", 201)->getTexture());
+    //weather_->setRenderer(Engine::getInstance()->getRenderer());
+    //weather_->setTexture(TextureManager::getInstance()->loadTexture("title", 201)->getTexture());
     weather_->stopSystem();
     addChild(weather_);
 }
@@ -80,7 +80,7 @@ void MainScene::draw()
         Point p;
     };
 
-    //Timer t1;
+    Timer t1;
     //std::map<int, DrawInfo> map;
     static std::vector<DrawInfo> building_vec(10000);
     int building_count = 0;
@@ -169,7 +169,7 @@ void MainScene::draw()
     {
         c->draw();
     }
-    //printf("%d buildings in %g s.\n", building_count, t1.getElapsedTime());
+    printf("%d buildings in %g s.\n", building_count, t1.getElapsedTime());
     Engine::getInstance()->renderAssistTextureToWindow();
 }
 

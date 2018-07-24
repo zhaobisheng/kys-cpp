@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "SDL2/SDL.h"
+#include "SDL2/SDL_gpu.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_ttf.h"
 
@@ -17,12 +18,24 @@
 //如需更换底层，则要重新实现下面的全部功能，并重新定义全部常数和类型
 
 typedef std::function<void(uint8_t*, int)> AudioCallback;
-typedef SDL_Renderer BP_Renderer;
-typedef SDL_Window BP_Window;
-typedef SDL_Texture BP_Texture;
-typedef SDL_Rect BP_Rect;
+typedef GPU_Target BP_Renderer;
+typedef GPU_Target BP_Window;
+typedef GPU_Image BP_Texture;
+//typedef GPU_Rect BP_Rect;
 typedef SDL_Color BP_Color;
 typedef SDL_Keycode BP_Keycode;
+
+struct BP_Rect : GPU_Rect
+{
+    BP_Rect() {}
+    BP_Rect(int x, int y, int w, int h)
+    {
+        this->x = x;
+        this->y = y;
+        this->w = w;
+        this->h = h;
+    }
+};
 
 enum BP_Align
 {
@@ -51,9 +64,9 @@ private:
 
 public:
     static Engine* getInstance()
-    {   
+    {
         static Engine e;
-        return &e; 
+        return &e;
     }
     //图形相关
 private:
@@ -73,8 +86,8 @@ private:
 public:
     int init(void* handle = 0);
 
-    void getWindowSize(int& w, int& h) { SDL_GetWindowSize(window_, &w, &h); }
-    void getWindowMaxSize(int& w, int& h) { SDL_GetWindowMaximumSize(window_, &w, &h); }
+    void getWindowSize(int& w, int& h) { w = window_->w; h = window_->h; }
+    void getWindowMaxSize(int& w, int& h) { /*SDL_GetWindowMaximumSize(window_, &w, &h);*/}
     int getWindowWidth();
     int getWindowHeight();
     int getMaxWindowWidth() { return max_x_ - min_x_; }
@@ -86,7 +99,7 @@ public:
         start_h_ = h;
     }
     void setWindowPosition(int x, int y);
-    void setWindowTitle(const std::string& str) { SDL_SetWindowTitle(window_, str.c_str()); }
+    void setWindowTitle(const std::string& str) { /* SDL_SetWindowTitle(window_, str.c_str());*/}
     BP_Renderer* getRenderer() { return renderer_; }
 
     void createAssistTexture(int w, int h);
@@ -94,7 +107,14 @@ public:
     //void getPresentSize(int& w, int& h) { w = rect_.w; h = rect_.h; }
     int getPresentWidth() { return rect_.w; }
     int getPresentHeight() { return rect_.h; }
-    void getMainTextureSize(int& w, int& h) { SDL_QueryTexture(tex2_, nullptr, nullptr, &w, &h); }
+    void getMainTextureSize(int& w, int& h)
+    {
+        if (tex2_)
+        {
+            w = tex2_->w;
+            h = tex2_->h;
+        }
+    }
     void destroyAssistTexture()
     {
         if (tex2_)
@@ -102,7 +122,7 @@ public:
             destroyTexture(tex2_);
         }
     }
-    static void destroyTexture(BP_Texture* t) { SDL_DestroyTexture(t); }
+    static void destroyTexture(BP_Texture* t) { GPU_FreeImage(t); }
     BP_Texture* createYUVTexture(int w, int h);
     void updateYUVTexture(BP_Texture* t, uint8_t* data0, int size0, uint8_t* data1, int size1, uint8_t* data2, int size2);
     BP_Texture* createARGBTexture(int w, int h);
@@ -110,13 +130,20 @@ public:
     void updateARGBTexture(BP_Texture* t, uint8_t* buffer, int pitch);
     void renderCopy(BP_Texture* t = nullptr);
     void renderCopy(BP_Texture* t, BP_Rect* rect1, double angle);
-    void showLogo() { SDL_RenderCopy(renderer_, logo_, nullptr, nullptr); }
-    void renderPresent() { SDL_RenderPresent(renderer_); /*renderClear();*/ }
-    void renderClear() { SDL_RenderClear(renderer_); }
-    void setTextureAlphaMod(BP_Texture* t, uint8_t alpha) { SDL_SetTextureAlphaMod(t, alpha); }
-    void queryTexture(BP_Texture* t, int* w, int* h) { SDL_QueryTexture(t, nullptr, nullptr, w, h); }
-    void setRenderTarget(BP_Texture* t) { SDL_SetRenderTarget(renderer_, t); }
-    void resetRenderTarget() { SDL_SetRenderTarget(renderer_, nullptr); }
+    //void showLogo() { SDL_RenderCopy(renderer_, logo_, nullptr, nullptr); }
+    void renderPresent() { GPU_Flip(window_); /*renderClear();*/ }
+    void renderClear() { GPU_Clear(window_); }
+    void setTextureAlphaMod(BP_Texture* t, uint8_t alpha) { GPU_SetRGBA(t, 255, 255, 255, alpha); }
+    void queryTexture(BP_Texture* t, int* w, int* h)
+    {
+        if (t)
+        {
+            *w = t->w;
+            *h = t->h;
+        }
+    }
+    void setRenderTarget(BP_Texture* t) { renderer_ = GPU_LoadTarget(t); }
+    void resetRenderTarget() { renderer_ = window_; }
     void createWindow() {}
     void createRenderer() {}
     void renderCopy(BP_Texture* t, int x, int y, int w = 0, int h = 0, int inPresent = 0);
@@ -136,7 +163,7 @@ public:
     }
     void setColor(BP_Texture* tex, BP_Color c, uint8_t alpha);
     void fillColor(BP_Color color, int x, int y, int w, int h);
-    void setRenderAssistTexture() { SDL_SetRenderTarget(renderer_, tex2_); }
+    void setRenderAssistTexture() { renderer_ = GPU_LoadTarget(tex2_); }
     void renderAssistTextureToWindow();
 
     //事件相关
