@@ -30,14 +30,14 @@ private:
 
     //两个对话，用于上面和下面，两个可以同时显示
     //视需要可增加更多
-    Element* talk_box_;
-    Talk* talk_box_up_ = nullptr;
-    Talk* talk_box_down_ = nullptr;
+    std::shared_ptr<Element> talk_box_;
+    std::shared_ptr<Talk> talk_box_up_ = nullptr;
+    std::shared_ptr<Talk> talk_box_down_ = nullptr;
 
     //专用于显示确认和取消选项
-    MenuText* menu2_ = nullptr;
+    std::shared_ptr<MenuText> menu2_ = nullptr;
     //专用于显示一个文本框
-    TextBox* text_box_ = nullptr;
+    std::shared_ptr<TextBox> text_box_ = nullptr;
     int event_id_ = -1;
 
     RandomDouble rand_;

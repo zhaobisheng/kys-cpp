@@ -14,19 +14,19 @@ UIItem::UIItem()
 
     for (int i = 0; i < item_buttons_.size(); i++)
     {
-        auto b = new Button();
+        auto b = std::make_shared<Button>();
         item_buttons_[i] = b;
         b->setPosition(i % item_each_line_ * 85 + 40, i / item_each_line_ * 85 + 100);
         //b->setTexture("item", Save::getInstance()->getItemByBagIndex(i)->ID);
         addChild(b);
     }
-    title_ = new MenuText();
+    title_ = std::make_shared<MenuText>();
     title_->setStrings({ "„¡Çé", "±ø¼×", "µ¤ËŽ", "°µÆ÷", "È­½›", "„¦×V", "µ¶ä›", "ÆæéT", "ÐÄ·¨" });
     title_->setFontSize(24);
     title_->arrange(0, 50, 64, 0);
     addChild(title_);
 
-    cursor_ = new TextBox();
+    cursor_ = std::make_shared<TextBox>();
     cursor_->setTexture("title", 127);
     cursor_->setVisible(false);
     addChild(cursor_);
@@ -229,7 +229,9 @@ void UIItem::dealEvent(BP_Event& e)
                 {
                     leftup_index_ += item_each_line_;
                     if (leftup_index_ <= max_leftup_)
-                    { active_child_ = item_each_line_ * (line_count_ - 1); }
+                    {
+                        active_child_ = item_each_line_ * (line_count_ - 1);
+                    }
                 }
                 break;
             case BPK_UP:

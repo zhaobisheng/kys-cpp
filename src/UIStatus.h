@@ -11,11 +11,9 @@ public:
     ~UIStatus();
 
 protected:
-    Button* button_medicine_;
-    Button* button_detoxification_;
-    Button* button_leave_;
+    std::shared_ptr<Button> button_medicine_, button_detoxification_, button_leave_;
 
-    Menu* menu_ = nullptr;
+    std::shared_ptr<Menu> menu_ = nullptr;
 
     bool show_button_ = true;
     Role* role_ = nullptr;

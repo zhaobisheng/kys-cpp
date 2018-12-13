@@ -13,7 +13,7 @@ Element::~Element()
     {
         if (c)
         {
-            delete c;
+            //delete c;
         }
     }
 }
@@ -49,7 +49,7 @@ void Element::setPosition(int x, int y)
 }
 
 //从绘制的根节点移除
-Element* Element::removeFromRoot(Element* element)
+void Element::removeFromRoot(Element* element)
 {
     if (element == nullptr)
     {
@@ -57,7 +57,7 @@ Element* Element::removeFromRoot(Element* element)
         {
             element = root_.back();
             root_.pop_back();
-            return element;
+            return;
         }
     }
     else
@@ -67,30 +67,30 @@ Element* Element::removeFromRoot(Element* element)
             if (root_[i] == element)
             {
                 root_.erase(root_.begin() + i);
-                return element;
+                return;
                 break;
             }
         }
     }
-    return nullptr;
+    return;
 }
 
 //添加子节点
-void Element::addChild(Element* element)
+void Element::addChild(std::shared_ptr<Element> element)
 {
     element->setTag(childs_.size());
     childs_.push_back(element);
 }
 
 //添加节点并同时设置子节点的位置
-void Element::addChild(Element* element, int x, int y)
+void Element::addChild(std::shared_ptr<Element> element, int x, int y)
 {
     addChild(element);
     element->setPosition(x_ + x, y_ + y);
 }
 
 //移除某个节点
-void Element::removeChild(Element* element)
+void Element::removeChild(std::shared_ptr<Element> element)
 {
     for (int i = 0; i < childs_.size(); i++)
     {
@@ -107,7 +107,7 @@ void Element::clearChilds()
 {
     for (auto c : childs_)
     {
-        delete c;
+        //delete c;
     }
     childs_.clear();
 }

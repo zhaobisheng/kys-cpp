@@ -22,12 +22,12 @@ public:
     int level_index_ = 0;
     void setRoleAndMagic(Role* r, Magic* m = nullptr, int l = 0);
 
-    Head* head_selected_;
+    std::shared_ptr<Head> head_selected_;
     //void setHead(Head* h) { head_selected_ = h; }
-    Head* getHead() { return head_selected_; }
+    std::shared_ptr<Head> getHead() { return head_selected_; }
 
-    UIStatus* ui_status_;
-    UIStatus* getUIStatus() { return ui_status_; }
+    std::shared_ptr<UIStatus> ui_status_;
+    std::shared_ptr<UIStatus> getUIStatus() { return ui_status_; }
 
     int mode_ = Move;
     enum

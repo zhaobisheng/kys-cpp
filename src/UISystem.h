@@ -8,7 +8,7 @@ public:
     UISystem();
     ~UISystem();
 
-    MenuText* title_ = nullptr;
+    std::shared_ptr<MenuText> title_ = nullptr;
 
     virtual void onPressedOK() override;
     virtual void onPressedCancel() override { exitWithResult(-1); }

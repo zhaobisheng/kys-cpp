@@ -41,12 +41,12 @@ MainScene::MainScene()
     //100¸öÔÆ
     for (int i = 0; i < 100; i++)
     {
-        auto c = new Cloud();
+        auto c = std::make_shared<Cloud>();
         cloud_vector_.push_back(c);
         c->initRand();
     }
     //getEntrance();
-    weather_ = new ParticleWeather();
+    weather_ = std::make_shared < ParticleWeather>();
     weather_->setRenderer(Engine::getInstance()->getRenderer());
     weather_->setTexture(TextureManager::getInstance()->loadTexture("title", 201)->getTexture());
     weather_->stopSystem();
@@ -55,10 +55,6 @@ MainScene::MainScene()
 
 MainScene::~MainScene()
 {
-    for (int i = 0; i < cloud_vector_.size(); i++)
-    {
-        delete cloud_vector_[i];
-    }
     Util::safe_delete({ &earth_layer_, &surface_layer_, &building_layer_, &build_x_layer_, &build_y_layer_, &entrance_layer_ });
 }
 

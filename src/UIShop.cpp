@@ -9,28 +9,28 @@ UIShop::UIShop()
     plan_buy_.resize(SHOP_ITEM_COUNT, 0);
     for (int i = 0; i < SHOP_ITEM_COUNT; i++)
     {
-        auto text = new Button();
+        auto text = std::make_shared<Button>();
         text->setFontSize(24);
         addChild(text, 0, 30 + 25 * i);
 
-        auto button_left_ = new Button();
+        auto button_left_ = std::make_shared<Button>();
         button_left_->setTexture("title", 104);
         text->addChild(button_left_, 36 * 12 + 36, 5);
         buttons_.push_back(button_left_);
 
-        auto button_right_ = new Button();
+        auto button_right_ = std::make_shared<Button>();
         button_right_->setTexture("title", 105);
         text->addChild(button_right_, 36 * 12 + 108, 5);
         buttons_.push_back(button_right_);
     }
 
-    button_ok_ = new Button();
+    button_ok_ = std::make_shared<Button>();
     button_ok_->setText("´_ÕJ");
     addChild(button_ok_, 0, 190);
-    button_cancel_ = new Button();
+    button_cancel_ = std::make_shared<Button>();
     button_cancel_->setText("È¡Ïû");
     addChild(button_cancel_, 100, 190);
-    button_clear_ = new Button();
+    button_clear_ = std::make_shared<Button>();
     button_clear_->setText("Çå³ý");
     addChild(button_clear_, 200, 190);
 
@@ -64,7 +64,7 @@ void UIShop::draw()
         auto item = Save::getInstance()->getItem(shop_->ItemID[i]);
         int count = Save::getInstance()->getItemCountInBag(item->ID);
         str = convert::formatString("%-12s%8d%8d%8d%8d", item->Name, shop_->Price[i], shop_->Total[i], count, plan_buy_[i]);
-        ((Button*)(getChild(i)))->setText(str);
+        (std::dynamic_pointer_cast<Button>(getChild(i)))->setText(str);
     }
 
     int need_money = calNeedMoney();

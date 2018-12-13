@@ -4,9 +4,9 @@
 
 BattleCursor::BattleCursor()
 {
-    head_selected_ = new Head();
+    head_selected_ = std::make_shared<Head>();
     addChild(head_selected_);
-    ui_status_ = new UIStatus();
+    ui_status_ = std::make_shared<UIStatus>();
     ui_status_->setVisible(false);
     ui_status_->setShowButton(false);
     addChild(ui_status_, 300, 0);

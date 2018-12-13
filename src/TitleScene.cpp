@@ -22,23 +22,21 @@
 TitleScene::TitleScene()
 {
     full_window_ = 1;
-    menu_ = new Menu();
+    menu_ = std::make_shared<Menu>();
     menu_->setPosition(400, 250);
-    auto b = new Button("title", 3, 23, 23);
+    auto b = std::make_shared<Button>("title", 3, 23, 23);
     menu_->addChild(b, 20, 0);
-    b = new Button("title", 4, 24, 24);
+    b = std::make_shared<Button>("title", 4, 24, 24);
     menu_->addChild(b, 20, 50);
-    b = new Button("title", 6, 26, 26);
+    b = std::make_shared<Button>("title", 6, 26, 26);
     menu_->addChild(b, 20, 100);
-    menu_load_ = new UISave();
+    menu_load_ = std::make_shared<UISave>();
     menu_load_->setPosition(500, 300);
     render_message_ = 1;
 }
 
 TitleScene::~TitleScene()
 {
-    delete menu_;
-    delete menu_load_;
 }
 
 void TitleScene::draw()

@@ -5,10 +5,10 @@ RandomRole::RandomRole()
 {
     setShowButton(false);
 
-    button_ok_ = new Button();
+    button_ok_ = std::make_shared<Button>();
     button_ok_->setText("´_¶¨");
     addChild(button_ok_, 350, 55);
-    head_ = new Head();
+    head_ = std::make_shared<Head>();
     addChild(head_, -290, 100);
 }
 

@@ -17,7 +17,7 @@ public:
     virtual ~SuperMenuText() = default;
     void dealEvent(BP_Event& e) override;
     virtual void setInputPosition(int x, int y) override;
-    void addDrawableOnCall(DrawableOnCall* doc);
+    void addDrawableOnCall(std::shared_ptr<DrawableOnCall> doc);
     void setMatchFunction(std::function<bool(const std::string&, const std::string&)> match);
 
 private:
@@ -27,13 +27,13 @@ private:
     void updateMaxPages();
     bool defaultMatch(const std::string& input, const std::string& name);
 
-    Button * previous_;
-    Button * next_;
+    std::shared_ptr<Button> previous_;
+    std::shared_ptr<Button> next_;
     int curPage_ = 0;
     int maxPages_ = 1;
     int itemsPerPage_ = 10;
     bool curDefault_ = false;
-    MenuText * selections_;
+    std::shared_ptr<MenuText> selections_;
 
     // 所有的
     std::vector<std::pair<int, std::string>> items_;
@@ -43,7 +43,7 @@ private:
     std::vector<int> activeIndices_;
     // 所有搜索结果
     std::vector<int> searchResultIndices_;
-    std::vector<DrawableOnCall*> docs_;
+    std::vector<std::shared_ptr<DrawableOnCall>> docs_;
 	std::function<bool(const std::string&, const std::string&)> matchFunc_;
 	
     // 预处理

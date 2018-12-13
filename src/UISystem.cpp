@@ -1,12 +1,12 @@
 #include "UISystem.h"
-#include "UISave.h"
+#include "Engine.h"
 #include "Event.h"
 #include "Script.h"
-#include "Engine.h"
+#include "UISave.h"
 
 UISystem::UISystem()
 {
-    title_ = new MenuText();
+    title_ = std::make_shared<MenuText>();
     title_->setStrings({ "讀取進度", "保存進度", "我的代碼", "離開遊戲" });
     title_->setFontSize(24);
     title_->arrange(100, 50, 120, 0);

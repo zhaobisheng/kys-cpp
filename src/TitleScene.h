@@ -1,7 +1,7 @@
 #pragma once
-#include "Scene.h"
-#include "Menu.h"
 #include "Event.h"
+#include "Menu.h"
+#include "Scene.h"
 #include "UISave.h"
 
 class TitleScene : public Scene
@@ -15,12 +15,11 @@ public:
 
     virtual void onEntrance() override;
 
-    Menu* menu_;
-    UISave* menu_load_;
+    std::shared_ptr<Menu> menu_;
+    std::shared_ptr<UISave> menu_load_;
 
     int count_ = 0;
     int head_id_ = 0;
 
     int head_x_, head_y_;
 };
-

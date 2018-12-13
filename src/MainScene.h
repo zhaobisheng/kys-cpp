@@ -1,8 +1,8 @@
 #pragma once
-#include "Scene.h"
 #include "Cloud.h"
-#include "Types.h"
 #include "ParticleExample.h"
+#include "Scene.h"
+#include "Types.h"
 
 class ParticleWeather : public Element, public ParticleExample
 {
@@ -33,19 +33,19 @@ public:
         return &ms;
     }
 
-    MapSquareInt* earth_layer_, *surface_layer_, *building_layer_, *build_x_layer_, *build_y_layer_, *entrance_layer_ = nullptr;
+    MapSquareInt *earth_layer_, *surface_layer_, *building_layer_, *build_x_layer_, *build_y_layer_, *entrance_layer_ = nullptr;
     bool data_readed_ = false;
 
     void divide2(MapSquareInt* m);
 
-    int MAN_PIC_0 = 2501;                   //初始主角图偏移量
-    int MAN_PIC_COUNT = 7;                  //单向主角图张数
-    int REST_PIC_0 = 2529;                  //主角休息图偏移量
-    int REST_PIC_COUNT = 6;                 //单向休息图张数
-    int SHIP_PIC_0 = 3715;                  //初始主角图偏移量
-    int SHIP_PIC_COUNT = 4;                 //单向主角图张数
-    int BEGIN_REST_TIME = 200;              //开始休息的时间
-    int REST_INTERVAL = 15;                 //休息图切换间隔
+    int MAN_PIC_0 = 2501;         //初始主角图偏移量
+    int MAN_PIC_COUNT = 7;        //单向主角图张数
+    int REST_PIC_0 = 2529;        //主角休息图偏移量
+    int REST_PIC_COUNT = 6;       //单向休息图张数
+    int SHIP_PIC_0 = 3715;        //初始主角图偏移量
+    int SHIP_PIC_COUNT = 4;       //单向主角图张数
+    int BEGIN_REST_TIME = 200;    //开始休息的时间
+    int REST_INTERVAL = 15;       //休息图切换间隔
 
     int force_submap_ = -1;
     int force_submap_x_ = -1;
@@ -55,7 +55,7 @@ public:
     //todo: 休息未完成
 
     Cloud::CloudTowards cloud_towards = Cloud::Left;
-    std::vector<Cloud*> cloud_vector_;
+    std::vector<std::shared_ptr<Cloud>> cloud_vector_;
 
     virtual void draw() override;
     virtual void backRun() override;
@@ -82,6 +82,6 @@ public:
     int getViewCloud() { return view_cloud_; }
 
     void setWeather();
-    ParticleWeather* getWeather() { return weather_; }
-    ParticleWeather* weather_ = nullptr;
+    std::shared_ptr<ParticleWeather> getWeather() { return weather_; }
+    std::shared_ptr<ParticleWeather> weather_ = nullptr;
 };

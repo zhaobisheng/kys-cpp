@@ -10,14 +10,14 @@
 SuperMenuText::SuperMenuText(const std::string& title, int font_size, const std::vector<std::pair<int, std::string>>& allItems, int itemsPerPage) :
     InputBox(title, font_size), items_(allItems), itemsPerPage_(itemsPerPage)
 {
-    previous_ = new Button();
+    previous_ = std::make_shared<Button>();
     previous_->setText("上一頁PgUp");
-    next_ = new Button();
+    next_ = std::make_shared<Button>();
     next_->setText("下一頁PgDown");
 
     addChild(previous_);
     addChild(next_);
-    selections_ = new MenuText();
+    selections_ = std::make_shared<MenuText>();
     addChild(selections_);
     setAllChildState(Normal);
     defaultPage();
@@ -76,7 +76,7 @@ void SuperMenuText::setInputPosition(int x, int y)
     next_->setPosition(x + font_size_ * 5, y - font_size_ * 1.5);
 }
 
-void SuperMenuText::addDrawableOnCall(DrawableOnCall * doc)
+void SuperMenuText::addDrawableOnCall(std::shared_ptr<DrawableOnCall> doc)
 {
     docs_.push_back(doc);
     addChild(doc);

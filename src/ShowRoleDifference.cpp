@@ -1,13 +1,13 @@
 #include "ShowRoleDifference.h"
 #include "Font.h"
-#include "libconvert.h"
 #include "Save.h"
+#include "libconvert.h"
 
 ShowRoleDifference::ShowRoleDifference()
 {
-    head1_ = new Head();
+    head1_ = std::make_shared<Head>();
     addChild(head1_);
-    head2_ = new Head();
+    head2_ = std::make_shared<Head>();
     addChild(head2_, 400, 0);
     //setText("ÐÞÁ•³É¹¦");
     setPosition(250, 180);
@@ -110,4 +110,3 @@ void ShowRoleDifference::draw()
     //showOneDifference(role1_->Level, "Óù„¦ %7d   -> %7d", 20, color, x, y);
     TextBox::draw();
 }
-

@@ -9,16 +9,16 @@
 
 UIStatus::UIStatus()
 {
-    menu_ = new Menu();
-    button_medicine_ = new Button();
+    menu_ = std::make_shared<Menu>();
+    button_medicine_ = std::make_shared<Button>();
     button_medicine_->setText("át¯Ÿ");
     menu_->addChild(button_medicine_, 350, 55);
 
-    button_detoxification_ = new Button();
+    button_detoxification_ = std::make_shared<Button>();
     button_detoxification_->setText("½â¶¾");
     menu_->addChild(button_detoxification_, 400, 55);
 
-    button_leave_ = new Button();
+    button_leave_ = std::make_shared<Button>();
     button_leave_->setText("ëxê ");
     menu_->addChild(button_leave_, 450, 55);
 

@@ -3,6 +3,7 @@
 #include "Engine.h"
 #include "TextureManager.h"
 #include <functional>
+#include <memory>
 
 #define CONNECT(a,b) a##b
 
@@ -14,7 +15,7 @@ private:
     static int prev_present_ticks_;
     static int refresh_interval_;
 protected:
-    std::vector<Element*> childs_;
+    std::vector<std::shared_ptr<Element>> childs_;
     bool visible_ = true;
     int result_ = -1;
     int full_window_ = 0;               //不为0时表示当前画面为起始层，此时低于本层的将不予显示，节省资源
@@ -49,13 +50,13 @@ public:
     static void drawAll();
 
     static void addOnRootTop(Element* element) { root_.push_back(element); }
-    static Element* removeFromRoot(Element* element);
+    static void removeFromRoot(Element* element);
 
-    void addChild(Element* element);
-    void addChild(Element* element, int x, int y);
-    Element* getChild(int i) { return childs_[i]; }
+    void addChild(std::shared_ptr<Element> element);
+    void addChild(std::shared_ptr<Element> element, int x, int y);
+    std::shared_ptr<Element> getChild(int i) { return childs_[i]; }
     int getChildCount() { return childs_.size(); }
-    void removeChild(Element* element);
+    void removeChild(std::shared_ptr<Element> element);
     void clearChilds();
 
     void setPosition(int x, int y);
@@ -166,7 +167,7 @@ public:
     {
         for (int i = root_.size() - 1; i >= 0; i--)
         {
-            T* ptr = dynamic_cast<T*>(root_[i]);
+            auto ptr = dynamic_cast<T*>(root_[i]);
             if (ptr) { return ptr; }
         }
         return nullptr;

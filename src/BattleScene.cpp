@@ -33,15 +33,15 @@ BattleScene::BattleScene()
     building_layer_ = new MapSquareInt(COORD_COUNT);
     select_layer_ = new MapSquareInt(COORD_COUNT);
     effect_layer_ = new MapSquareInt(COORD_COUNT);
-    battle_menu_ = new BattleActionMenu();
+    battle_menu_ = std::make_shared<BattleActionMenu>();
 
     role_layer_ = new MapSquare<Role*>(COORD_COUNT);
 
     battle_menu_->setBattleScene(this);
     battle_menu_->setPosition(160, 200);
-    head_self_ = new Head();
+    head_self_ = std::make_shared<Head>();
     addChild(head_self_);
-    battle_cursor_ = new BattleCursor();
+    battle_cursor_ = std::make_shared<BattleCursor>();
     battle_cursor_->setBattleScene(this);
     save_ = Save::getInstance();
     semi_real_ = GameUtil::getInstance()->getInt("game", "semi_real", 0);
@@ -55,8 +55,8 @@ BattleScene::BattleScene(int id)
 
 BattleScene::~BattleScene()
 {
-    delete battle_menu_;
-    delete battle_cursor_;
+    //delete battle_menu_;
+    //delete battle_cursor_;
     Util::safe_delete({ &earth_layer_, &building_layer_, &select_layer_, &effect_layer_ });
     delete role_layer_;
 }
@@ -345,7 +345,7 @@ void BattleScene::onEntrance()
     //注意此时才能得到窗口的大小，用来设置头像的位置
     head_self_->setPosition(80, 100);
 
-    Element::addOnRootTop(MainScene::getInstance()->getWeather());
+    Element::addOnRootTop(MainScene::getInstance()->getWeather().get());
 
     //earth_texture_ = Engine::getInstance()->createARGBRenderedTexture(COORD_COUNT * TILE_W * 2, COORD_COUNT * TILE_H * 2);
     //Engine::getInstance()->setRenderTarget(earth_texture_);
@@ -384,7 +384,7 @@ void BattleScene::onExit()
     {
         r->setRolePositionLayer(nullptr);
     }
-    Element::removeFromRoot(MainScene::getInstance()->getWeather());
+    Element::removeFromRoot(MainScene::getInstance()->getWeather().get());
     if (earth_texture_)
     {
         Engine::destroyTexture(earth_texture_);

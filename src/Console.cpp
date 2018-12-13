@@ -135,7 +135,7 @@ Console::Console()
                 }
             }
         };
-        auto doc = new DrawableOnCall(drawScene);
+        auto doc = std::make_shared<DrawableOnCall>(drawScene);
         SuperMenuText smt("可輸入傳送地名，編號或拼音搜索：", 28, locs, 15);
         smt.setInputPosition(dx, dy);
         smt.addDrawableOnCall(doc);
