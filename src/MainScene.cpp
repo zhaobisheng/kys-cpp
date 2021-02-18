@@ -408,6 +408,10 @@ void MainScene::tryWalk(int x, int y)
 
 bool MainScene::isBuilding(int x, int y)
 {
+    if (isOutLine(x, y))
+    {
+        return false;
+    }
     return (building_layer_.data(build_x_layer_.data(x, y), build_y_layer_.data(x, y)).getTexture() != nullptr);
 }
 
